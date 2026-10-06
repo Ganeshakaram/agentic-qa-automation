@@ -3,8 +3,9 @@ import { ProductsPage } from '../../../pages/ProductsPage';
 import { ProductsResponse } from '../../../models/products';
 import { CartPage } from '../../../pages/CartPage';
 
-test('Search product from UI', async ({ page , api}) => {
+test('Search product from UI', async ({ page, api }) => {
 
+    // API
     const response = await api.get<ProductsResponse>(
         '/api/productsList'
     );
@@ -12,20 +13,19 @@ test('Search product from UI', async ({ page , api}) => {
     expect(response.status).toBe(200);
     expect(response.data.responseCode).toBe(200);
 
-  
-const randomIndex = Math.floor(
-    Math.random() * response.data.products.length
-);
+    // Select a known product from API
+    const apiProduct = response.data.products.find(
+        product => product.name === 'Blue Top'
+    );
 
-  const apiProduct = response.data.products[randomIndex];
+    expect(apiProduct).toBeDefined();
 
-  expect(apiProduct).toBeDefined();
- const productName = apiProduct.name;
+    const productName = apiProduct!.name;
+
     // UI
     const productsPage = new ProductsPage(page);
 
     await productsPage.openProductsPage();
-
     await productsPage.searchProduct(productName);
 
     const uiProductName =
@@ -38,21 +38,25 @@ const randomIndex = Math.floor(
     expect(uiProductName).toBe(apiProduct!.name);
     expect(uiProductPrice).toBe(apiProduct!.price);
 
+    // Add product to cart
     await productsPage.addProductToCart(productName);
+
     await productsPage.openCart();
 
+    // Cart validation
     const cart = new CartPage(page);
 
     const cartProductName =
-    await cart.getProductName(productName);
+        await cart.getProductName(productName);
+
     const cartProductPrice =
-    await cart.getProductPrice(productName);
+        await cart.getProductPrice(productName);
+
     expect(cartProductName).toBe(apiProduct!.name);
     expect(cartProductPrice).toBe(apiProduct!.price);
 
     const cartProductQuantity =
-    await cart.getProductQuantity(productName);
+        await cart.getProductQuantity(productName);
+
     expect(cartProductQuantity).toBe('1');
-
-
 });
