@@ -14,18 +14,24 @@ export interface TestPlan {
 }
 
 export async function createTestPlan(
-    feature: string
+    feature: string,
+    observations: unknown
 ): Promise<TestPlan> {
 
     const systemPrompt = `
 You are an expert QA automation test planner.
 
-Your job is to create a test plan for the requested application feature.
+You receive observations collected from a real application using browser automation.
 
-Identify:
-- positive scenarios
-- negative scenarios
-- boundary or validation scenarios where relevant
+Your job is to create a test plan based ONLY on the observed application behavior.
+
+IMPORTANT RULES:
+- Do not invent UI elements or behaviors that were not observed.
+- Do not assume successful behavior if it was not observed.
+- Include positive, negative, and validation scenarios only when supported by the observations.
+- Clearly distinguish observed behavior from unobserved behavior.
+- Prioritize important validation and negative scenarios.
+- Keep the scenarios suitable for Playwright automation.
 
 Return ONLY valid JSON.
 
@@ -46,9 +52,15 @@ The JSON must follow this structure:
 `;
 
     const userPrompt = `
-Create a QA test plan for this feature:
+Create a QA test plan for the following feature.
 
+Feature:
 ${feature}
+
+Observed application behavior:
+${JSON.stringify(observations, null, 2)}
+
+Generate scenarios based strictly on these observations.
 `;
 
     const result = await askAI(systemPrompt, userPrompt);
