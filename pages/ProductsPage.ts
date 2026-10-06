@@ -38,14 +38,24 @@ export class ProductsPage {
     }
 
 
-   async addProductToCart(productName: string) {
-
+ async addProductToCart(productName: string) {
     const productCard = this.page
         .locator('.productinfo')
         .filter({ hasText: productName });
 
     await productCard
         .locator('.add-to-cart')
+        .click();
+
+    await this.page
+        .getByText('Your product has been added to cart.')
+        .waitFor({
+            state: 'visible',
+            timeout: 10000
+        });
+
+    await this.page
+        .getByText('Continue Shopping')
         .click();
 }
 
