@@ -3,3 +3,4 @@ playwright-report/
 test-results/
 .env
 playwright/.auth/
+.playwright-mcp/
