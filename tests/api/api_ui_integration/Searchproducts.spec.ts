@@ -4,8 +4,6 @@ import { ProductsResponse } from '../../../models/products';
 import { CartPage } from '../../../pages/CartPage';
 
 test('Search product from UI', async ({ page, api }) => {
-
-    // API
     const response = await api.get<ProductsResponse>(
         '/api/productsList'
     );
@@ -13,7 +11,6 @@ test('Search product from UI', async ({ page, api }) => {
     expect(response.status).toBe(200);
     expect(response.data.responseCode).toBe(200);
 
-    // Select a known product from API
     const apiProduct = response.data.products.find(
         product => product.name === 'Blue Top'
     );
@@ -22,7 +19,6 @@ test('Search product from UI', async ({ page, api }) => {
 
     const productName = apiProduct!.name;
 
-    // UI
     const productsPage = new ProductsPage(page);
 
     await productsPage.openProductsPage();
@@ -34,17 +30,29 @@ test('Search product from UI', async ({ page, api }) => {
     const uiProductPrice =
         await productsPage.getProductPrice(productName);
 
-    // API ↔ UI validation
     expect(uiProductName).toBe(apiProduct!.name);
     expect(uiProductPrice).toBe(apiProduct!.price);
 
-    // Add product to cart
-    await productsPage.addProductToCart(productName);
-
     await productsPage.openCart();
 
-    // Cart validation
     const cart = new CartPage(page);
+
+    const existingProduct = await cart.getProduct(productName);
+
+    let initialQuantity = 0;
+
+    if (await existingProduct.count() > 0) {
+        initialQuantity = Number(
+            await cart.getProductQuantity(productName)
+        );
+    }
+await page.goto(`/products?search=${encodeURIComponent(productName)}`, {
+    waitUntil: 'domcontentloaded'
+});
+
+await productsPage.addProductToCart(productName);
+
+    await productsPage.openCart();
 
     const cartProductName =
         await cart.getProductName(productName);
@@ -55,8 +63,9 @@ test('Search product from UI', async ({ page, api }) => {
     expect(cartProductName).toBe(apiProduct!.name);
     expect(cartProductPrice).toBe(apiProduct!.price);
 
-    const cartProductQuantity =
-        await cart.getProductQuantity(productName);
+    const finalQuantity = Number(
+        await cart.getProductQuantity(productName)
+    );
 
-    expect(cartProductQuantity).toBe('1');
+    expect(finalQuantity).toBe(initialQuantity + 1);
 });
