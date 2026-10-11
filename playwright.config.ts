@@ -17,19 +17,32 @@ export default defineConfig({
 
     timeout: 30000,
 
-    projects: [
-        {
-            name: 'setup',
-            testMatch: /auth\.setup\.ts/,
-        },
+projects: [
+    {
+        name: 'setup',
+        testMatch: /auth\.setup\.ts/,
+    },
 
-        {
-            name: 'chromium',
-            use: {
-                ...devices['Desktop Chrome'],
-                storageState: 'playwright/.auth/user.json',
-            },
-            dependencies: ['setup'],
+    {
+        name: 'chromium',
+        testIgnore: '**/ai-generated/**',
+        use: {
+            ...devices['Desktop Chrome'],
+            storageState: 'playwright/.auth/user.json',
         },
-    ],
+        dependencies: ['setup'],
+    },
+
+    {
+        name: 'ai-generated',
+        testMatch: /.*\.generated\.spec\.ts/,
+        use: {
+            ...devices['Desktop Chrome'],
+            storageState: {
+                cookies: [],
+                origins: [],
+            },
+        },
+    },
+],
 });

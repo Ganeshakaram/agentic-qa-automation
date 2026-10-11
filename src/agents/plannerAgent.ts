@@ -6,6 +6,10 @@ export interface TestScenario {
     steps: string[];
     expectedResult: string;
     priority: 'High' | 'Medium' | 'Low';
+    selectors?: {
+        name: string;
+        selector: string;
+    }[];
 }
 
 export interface TestPlan {
@@ -32,6 +36,9 @@ IMPORTANT RULES:
 - Clearly distinguish observed behavior from unobserved behavior.
 - Prioritize important validation and negative scenarios.
 - Keep the scenarios suitable for Playwright automation.
+- Include selectors only when they are explicitly present in the observations.
+- Never invent selectors.
+- Preserve the exact selector values from the observations.
 
 Return ONLY valid JSON.
 
@@ -45,7 +52,13 @@ The JSON must follow this structure:
       "preconditions": ["string"],
       "steps": ["string"],
       "expectedResult": "string",
-      "priority": "High | Medium | Low"
+      "priority": "High | Medium | Low",
+      "selectors": [
+        {
+          "name": "string",
+          "selector": "string"
+        }
+      ]
     }
   ]
 }
@@ -63,7 +76,13 @@ ${JSON.stringify(observations, null, 2)}
 Generate scenarios based strictly on these observations.
 `;
 
-    const result = await askAI(systemPrompt, userPrompt);
+    
+const result = await askAI(systemPrompt, userPrompt);
 
-    return JSON.parse(result) as TestPlan;
+const cleanedResult = result
+    .trim()
+    .replace(/^```(?:json)?\s*/i, '')
+    .replace(/\s*```$/, '');
+
+return JSON.parse(cleanedResult) as TestPlan;
 }

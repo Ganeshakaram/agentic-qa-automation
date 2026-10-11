@@ -10,19 +10,22 @@ export const loginObservation = {
         {
             name: 'Email Address',
             type: 'email',
-            required: true
+            required: true,
+            selector: '[data-qa="login-email"]'
         },
         {
             name: 'Password',
             type: 'password',
-            required: true
+            required: true,
+            selector: '[data-qa="login-password"]'
         }
     ],
 
     actions: [
         {
             name: 'Login',
-            type: 'submit'
+            type: 'submit',
+            selector: '[data-qa="login-button"]'
         }
     ],
 
@@ -36,11 +39,13 @@ export const loginObservation = {
             scenario: 'Malformed email',
             input: 'not-an-email',
             result: 'Browser-native email validation prevents submission.',
-            message: "Please include an '@' in the email address. 'not-an-email' is missing an '@'."
+            message:
+                "Please include an '@' in the email address. 'not-an-email' is missing an '@'."
         },
         {
             scenario: 'Invalid credentials',
-            result: 'Login remains on /login and the site displays an authentication error.',
+            result:
+                'Login remains on /login and the site displays an authentication error.',
             message: 'Your email or password is incorrect!'
         }
     ],

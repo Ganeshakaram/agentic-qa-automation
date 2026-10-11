@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npx playwright test",
+    "ai:generate": "tsx scripts/generate-login-tests.ts",
+    "ai:test": "npm run ai:generate && npx playwright test --project=ai-generated"
   },
   "keywords": [],
   "author": "",
@@ -11,6 +13,7 @@
   "description": "",
   "devDependencies": {
     "@playwright/test": "^1.63.0",
+    "tsx": "^4.23.15",
     "typescript": "^7.0.2"
   },
   "dependencies": {

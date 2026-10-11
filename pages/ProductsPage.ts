@@ -1,7 +1,7 @@
+
 import { Page } from '@playwright/test';
 
 export class ProductsPage {
-
     readonly page: Page;
 
     constructor(page: Page) {
@@ -18,47 +18,51 @@ export class ProductsPage {
     }
 
     async getProductCard(productName: string) {
-        return this.page.locator('.productinfo').filter({ hasText: productName });
+        return this.page
+            .locator('.productinfo')
+            .filter({ hasText: productName });
     }
 
     async getProductName(productName: string) {
-        const productCard = this.page
-            .locator('.productinfo')
-            .filter({ hasText: productName });
-
+        const productCard = await this.getProductCard(productName);
         return await productCard.locator('p').textContent();
     }
 
     async getProductPrice(productName: string) {
-        const productCard = this.page
-            .locator('.productinfo')
-            .filter({ hasText: productName });
-
+        const productCard = await this.getProductCard(productName);
         return await productCard.locator('h2').textContent();
     }
 
+   
+async addProductToCart(productName: string) {
+    const productCard = await this.getProductCard(productName);
 
- async addProductToCart(productName: string) {
-    const productCard = this.page
-        .locator('.productinfo')
-        .filter({ hasText: productName });
+    await productCard.scrollIntoViewIfNeeded();
+    await productCard.hover();
 
-    await productCard
-        .locator('.add-to-cart')
-        .click();
+    const addToCartButton = productCard.locator('.add-to-cart');
+    await addToCartButton.click({ timeout: 10000 });
 
-    await this.page
+    const cartModal = this.page.locator('#cartModal');
+
+    await cartModal.waitFor({
+        state: 'visible',
+        timeout: 10000,
+    });
+
+    await cartModal
         .getByText('Your product has been added to cart.')
         .waitFor({
             state: 'visible',
-            timeout: 10000
+            timeout: 10000,
         });
 
-    await this.page
-        .getByText('Continue Shopping')
-        .click();
+    await cartModal
+        .getByRole('button', { name: 'Continue Shopping' })
+        .click({ timeout: 15000 });
 }
 
-  async openCart() {
-     await this.page.getByRole('link', { name: /Cart/i }).first().click();}
+    async openCart() {
+        await this.page.getByRole('link', { name: /Cart/i }).first().click();
+    }
 }

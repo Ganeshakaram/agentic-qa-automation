@@ -19,7 +19,7 @@ export async function askAI(
 ): Promise<string> {
 
     const response = await client.models.generateContent({
-        model: 'gemini-3.8-flash',
+        model: 'gemini-3.5-flash-lite',
         contents: userPrompt,
         config: {
             systemInstruction: systemPrompt
